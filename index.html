@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>DOOM Portal Game (Procedural)</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Add favicon to prevent 404 -->
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <!-- Three.js Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Start Screen/UI Overlay -->
+  <div id="startScreen">
+    <div id="header">
+      <h1>DOOM Portal</h1>
+    </div>
+    <div id="mainMenu">
+      <button id="newGameBtn">New Game</button>
+      <button id="mapMakerBtn">Map Maker</button>
+      <button id="settingsBtn">Settings</button>
+    </div>
+    <!-- Map Maker Panel -->
+    <div id="mapMakerPanel" class="subPanel">
+      <label>Map Width: 
+        <input type="number" id="mapWidth" min="10" max="100" value="50">
+      </label>
+      <label>Map Height: 
+        <input type="number" id="mapHeight" min="10" max="100" value="50">
+      </label>
+      <label>Seed: 
+        <input type="text" id="mapSeed" value="default">
+      </label>
+      <button id="generateMapBtn">Generate Map</button>
+      <button class="backBtn">Back</button>
+    </div>
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="subPanel">
+      <label>Volume: 
+        <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.7">
+      </label>
+      <label>Mouse Sensitivity:
+        <input type="range" id="sensitivityControl" min="0.5" max="5" step="0.1" value="1.5">
+      </label>
+      <button class="backBtn">Back</button>
+    </div>
+  </div>
+
+  <!-- Minimap -->
+  <canvas id="minimap"></canvas>
+
+  <!-- Update import map with full URLs -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.147.0/build/three.module.js",
+      "BufferGeometryUtils": "https://unpkg.com/three@0.147.0/examples/jsm/utils/BufferGeometryUtils.js"
+    }
+  }
+  </script>
+
+  <!-- Load our game code -->
+  <script type="module">
+    import { init } from './src/game/Main.js';
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html> 

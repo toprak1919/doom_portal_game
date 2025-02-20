@@ -13,7 +13,9 @@ export class Renderer {
 
     // Create main scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x000000);
+    
+    // Add sky dome before any other scene elements
+    this.scene.add(this.createGradientSkyDome());
 
     // Camera rig setup
     this.cameraRig = new THREE.Group();
@@ -28,12 +30,31 @@ export class Renderer {
     this.cameraHolder.add(this.camera);
     this.scene.add(this.cameraRig);
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    // Natural Lighting Setup
+    const hemiLight = new THREE.HemisphereLight(0x87CEEB, 0x444444, 1.0);
+    hemiLight.position.set(0, 200, 0);
+    this.scene.add(hemiLight);
+
+    // Bright Ambient Light for overall illumination
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     this.scene.add(ambientLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    dirLight.position.set(10, 20, 10);
-    this.scene.add(dirLight);
+
+    // Enhanced sun lighting
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    sunLight.position.set(100, 200, 100);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 500;
+    sunLight.shadow.camera.left = -50;
+    sunLight.shadow.camera.right = 50;
+    sunLight.shadow.camera.top = 50;
+    sunLight.shadow.camera.bottom = -50;
+    this.scene.add(sunLight);
+
+    // Add visible sun sprite
+    this.scene.add(this.createSun());
 
     // Create damage overlay
     this.setupDamageOverlay();
@@ -165,5 +186,60 @@ export class Renderer {
       this.renderer.setRenderTarget(null);
       this.renderer.render(this.postProcessScene, this.postProcessCamera);
     }
+  }
+
+  createGradientSkyDome() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const context = canvas.getContext('2d');
+
+    // Create a vertical gradient: deep blue at the top, lighter near the horizon.
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#1E90FF'); // Dodger blue (deep blue at the top)
+    gradient.addColorStop(1, '#87CEEB'); // Light sky blue at the horizon
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+
+    const skyGeo = new THREE.SphereGeometry(500, 32, 15);
+    const skyMat = new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.BackSide,
+      fog: false // Ensure the sky isn't affected by fog if you add it later
+    });
+    return new THREE.Mesh(skyGeo, skyMat);
+  }
+
+  createSun() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const context = canvas.getContext('2d');
+
+    // Create a radial gradient for the sun
+    const gradient = context.createRadialGradient(128, 128, 0, 128, 128, 128);
+    gradient.addColorStop(0, 'rgba(255, 255, 200, 1)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 100, 0.8)');
+    gradient.addColorStop(1, 'rgba(255, 255, 50, 0)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 256, 256);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+
+    const material = new THREE.SpriteMaterial({ 
+      map: texture, 
+      transparent: true,
+      blending: THREE.AdditiveBlending
+    });
+    const sunSprite = new THREE.Sprite(material);
+    
+    // Scale and position the sun
+    sunSprite.scale.set(20, 20, 1);
+    sunSprite.position.set(100, 200, 100);
+    return sunSprite;
   }
 }

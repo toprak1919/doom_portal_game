@@ -100,4 +100,10 @@ export class Input {
     return this.keys.forward || this.keys.backward || 
            this.keys.left || this.keys.right;
   }
+
+  lockMouse() {
+    if (!this.mouseLocked) {
+      document.getElementById('gameCanvas').requestPointerLock();
+    }
+  }
 } 

@@ -10,6 +10,7 @@ import { Enemy } from './Enemy.js';
 import { UI } from './UI.js';
 import { PortalManager } from './Portal.js';
 import { ParticleSystem } from '../engine/ParticleSystem.js';
+import { MobileInput } from '../engine/MobileInput.js';
 
 let lastTime = 0;
 const enemies = [];
@@ -47,9 +48,11 @@ function loop(timestamp) {
 
 // Export the initialization function
 export function init() {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  
   renderer = new Renderer();
   physics = new Physics(renderer);
-  input = new Input();
+  input = isMobile ? new MobileInput() : new Input();
   audioEngine = new AudioEngine();
 
   particleSystem = new ParticleSystem(renderer);
